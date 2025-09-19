@@ -1,0 +1,25 @@
+name: Deploy Next.js application
+on:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build & tag
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nextjs-app:latest .
+      - name: Log in
+        run: echo "${{ secrets.DOCKERHUB_PAT }}" | docker login --username "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+      - name: Push
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/nextjs-app:latest
+
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Pull & run
+        run: |
+          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nextjs-app:latest
+          sudo docker rm -f nextjs-app-container || true
+          sudo docker run -d -p 3000:3000 --name nextjs-app-container ${{ secrets.DOCKERHUB_USERNAME }}/nextjs-app:latest
