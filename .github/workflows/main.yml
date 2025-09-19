@@ -19,6 +19,11 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
       
+      - name: Clean up Docker cache
+        run: |
+          docker system prune -f
+          docker builder prune -f
+      
       - name: Build, tag, and push image to Amazon ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
