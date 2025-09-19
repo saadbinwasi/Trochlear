@@ -1,4 +1,4 @@
-name: Deploy React application to AWS ECS
+name: Deploy React.js application
 on:
   push:
     branches: [main]
@@ -7,59 +7,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Debug - List files
-        run: |
-          echo "=== Root directory contents ==="
-          ls -la
-          echo "=== Agency directory contents ==="
-          ls -la agency/
-          echo "=== Dockerfile contents ==="
-          cat agency/Dockerfile
-      
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-      
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-      
-      - name: Clean up Docker cache
-        run: |
-          docker system prune -f
-          docker builder prune -f
-      
-      - name: Build, tag, and push image to Amazon ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: trochlear-react-app
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          echo "Building with Dockerfile: agency/Dockerfile"
-          echo "Build context: ./agency"
-          docker build --no-cache -f agency/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./agency
-          docker build --no-cache -f agency/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:latest ./agency
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+      - name: Build & tag
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/react-app:latest .
+      - name: Log in
+        run: echo "${{ secrets.DOCKERHUB_PAT }}" | docker login --username "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+      - name: Push
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/react-app:latest
 
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-      
-      - name: Update ECS service
+      - name: Pull & run
         run: |
-          aws ecs update-service \
-            --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
-            --service ${{ secrets.ECS_SERVICE_NAME }} \
-            --force-new-deployment
+          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/react-app:latest
+          sudo docker rm -f react-app-container || true
+          sudo docker run -d -p 3000:3000 --name react-app-container ${{ secrets.DOCKERHUB_USERNAME }}/react-app:latest
