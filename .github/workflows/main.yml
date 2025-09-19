@@ -8,6 +8,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Debug - List files
+        run: |
+          echo "=== Root directory contents ==="
+          ls -la
+          echo "=== Agency directory contents ==="
+          ls -la agency/
+          echo "=== Dockerfile contents ==="
+          cat agency/Dockerfile
+      
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -30,6 +39,8 @@ jobs:
           ECR_REPOSITORY: trochlear-react-app
           IMAGE_TAG: ${{ github.sha }}
         run: |
+          echo "Building with Dockerfile: agency/Dockerfile"
+          echo "Build context: ./agency"
           docker build --no-cache -f agency/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./agency
           docker build --no-cache -f agency/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:latest ./agency
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
