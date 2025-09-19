@@ -1,4 +1,4 @@
-name: Deploy Next.js application
+name: Deploy React application
 on:
   push:
     branches: [main]
@@ -8,11 +8,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build & tag
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nextjs-app:latest .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/react-app:latest .
       - name: Log in
         run: echo "${{ secrets.DOCKERHUB_PAT }}" | docker login --username "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
       - name: Push
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/nextjs-app:latest
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/react-app:latest
 
   deploy:
     needs: build
@@ -20,6 +20,6 @@ jobs:
     steps:
       - name: Pull & run
         run: |
-          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nextjs-app:latest
-          sudo docker rm -f nextjs-app-container || true
-          sudo docker run -d -p 3000:3000 --name nextjs-app-container ${{ secrets.DOCKERHUB_USERNAME }}/nextjs-app:latest
+          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/react-app:latest
+          sudo docker rm -f react-app-container || true
+          sudo docker run -d -p 3000:3000 --name react-app-container ${{ secrets.DOCKERHUB_USERNAME }}/react-app:latest
