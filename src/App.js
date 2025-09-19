@@ -63,7 +63,7 @@ function App() {
         <section className="hero" id="home">
           <div className="hero-content">
             <h1>
-              AI Software Development, Crafted for Luxury-Grade Outcomes.
+              AI Software Development, Crafted for Luxury-Grade Outcomes. saad
             </h1>
             <p className="subtitle">
               We design, engineer, and ship AI-powered products and automations that drive measurable ROI for global brands.
