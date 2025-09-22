@@ -1,9 +1,11 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
 
-function App() {
-  const [lang, setLang] = useState(() => localStorage.getItem('lang') || 'en');
-  const [formState, setFormState] = useState({ status: 'idle', message: '' });
+function Home({ lang, setLang, formState, setFormState }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const toggleRef = useRef(null);
+  const navRef = useRef(null);
 
   const handleLangChange = (e) => {
     const value = e.target.value;
@@ -47,14 +49,68 @@ function App() {
     }
   };
 
+  const handleNavClick = () => setMenuOpen(false);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setMenuOpen(false);
+        toggleRef.current?.focus();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const focusables = [];
+        if (toggleRef.current) focusables.push(toggleRef.current);
+        if (navRef.current) {
+          const navItems = navRef.current.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+          navItems.forEach((el) => focusables.push(el));
+        }
+        const focusable = focusables.filter((el) => el && !el.hasAttribute('disabled'));
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const active = document.activeElement;
+        if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
+        else if (e.shiftKey && active === first) { e.preventDefault(); last.focus(); }
+      }
+    };
+    const firstLink = navRef.current?.querySelector('a');
+    firstLink?.focus();
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [menuOpen]);
+
   return (
-    <div className="site">
+    <div className={`site ${menuOpen ? 'lock' : ''}`}>
       <header className="nav">
-        <div className="nav-brand">Trochlear</div>
-        <nav className="nav-links">
+        <div className="nav-left">
+          <div className="nav-brand">Trochlear</div>
+          <button
+            ref={toggleRef}
+            className={`nav-toggle ${menuOpen ? 'open' : ''}`}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+            aria-controls="primary-navigation"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            <span className="bar" />
+            <span className="bar" />
+            <span className="bar" />
+          </button>
+        </div>
+
+        <nav
+          ref={navRef}
+          id="primary-navigation"
+          className={`nav-links ${menuOpen ? 'open' : ''}`}
+          onClick={handleNavClick}
+        >
           <a href="#work">Work</a>
           <a href="#services">Services</a>
           <a href="#approach">Approach</a>
+          <Link to="/team" className="btn btn-outline">Our Team</Link>
           <a href="#contact" className="btn btn-outline">Contact</a>
         </nav>
       </header>
@@ -100,81 +156,87 @@ function App() {
         </section>
 
         <section className="section" id="services">
-          <h2>Services</h2>
-          <div className="cards">
-            <div className="card">
-              <h3>AI Product Development</h3>
-              <p>Custom AI apps, copilots, and agents—from concept to launch.</p>
-            </div>
-            <div className="card">
-              <h3>Automation & Ops</h3>
-              <p>Streamline workflows with robust, observable automations.</p>
-            </div>
-            <div className="card">
-              <h3>Data & Integrations</h3>
-              <p>ETL, vector search, and secure integrations across your stack.</p>
+          <div className="section-inner">{/* keeps layout intact on desktop */}
+            <h2>Services</h2>
+            <div className="cards">
+              <div className="card">
+                <h3>AI Product Development</h3>
+                <p>Custom AI apps, copilots, and agents—from concept to launch.</p>
+              </div>
+              <div className="card">
+                <h3>Automation & Ops</h3>
+                <p>Streamline workflows with robust, observable automations.</p>
+              </div>
+              <div className="card">
+                <h3>Data & Integrations</h3>
+                <p>ETL, vector search, and secure integrations across your stack.</p>
+              </div>
             </div>
           </div>
         </section>
 
         <section className="section" id="work">
-          <h2>Case Studies</h2>
-          <div className="studies">
-            <article className="study">
-              <div className="study-head">
-                <h3>Luxury Retail — AI Styling Copilot</h3>
-                <span className="badge">+18% AOV</span>
-              </div>
-              <p>
-                Conversational product assistant that personalizes looks and bundles across catalog and inventory signals.
-              </p>
-            </article>
-            <article className="study">
-              <div className="study-head">
-                <h3>Global Logistics — Ops Automation</h3>
-                <span className="badge">-42% TTR</span>
-              </div>
-              <p>
-                Automated exception handling with human-in-the-loop review, observability, and audit trails.
-              </p>
-            </article>
-            <article className="study">
-              <div className="study-head">
-                <h3>Financial Services — Risk Copilot</h3>
-                <span className="badge">99.9% SLA</span>
-              </div>
-              <p>
-                Document intelligence and decision support integrated with internal policy and third-party data.
-              </p>
-            </article>
+          <div className="section-inner">
+            <h2>Case Studies</h2>
+            <div className="studies">
+              <article className="study">
+                <div className="study-head">
+                  <h3>Luxury Retail — AI Styling Copilot</h3>
+                  <span className="badge">+18% AOV</span>
+                </div>
+                <p>
+                  Conversational product assistant that personalizes looks and bundles across catalog and inventory signals.
+                </p>
+              </article>
+              <article className="study">
+                <div className="study-head">
+                  <h3>Global Logistics — Ops Automation</h3>
+                  <span className="badge">-42% TTR</span>
+                </div>
+                <p>
+                  Automated exception handling with human-in-the-loop review, observability, and audit trails.
+                </p>
+              </article>
+              <article className="study">
+                <div className="study-head">
+                  <h3>Financial Services — Risk Copilot</h3>
+                  <span className="badge">99.9% SLA</span>
+                </div>
+                <p>
+                  Document intelligence and decision support integrated with internal policy and third-party data.
+                </p>
+              </article>
+            </div>
           </div>
         </section>
 
         <section className="section" id="approach">
-          <h2>Approach</h2>
-          <ul className="steps">
-            <li>
-              <span className="step-index">01</span>
-              <div>
-                <h4>Diagnostic</h4>
-                <p>Define ROI targets, constraints, and success metrics.</p>
-              </div>
-            </li>
-            <li>
-              <span className="step-index">02</span>
-              <div>
-                <h4>Design</h4>
-                <p>Experience, systems, and data design for clarity and speed.</p>
-              </div>
-            </li>
-            <li>
-              <span className="step-index">03</span>
-              <div>
-                <h4>Delivery</h4>
-                <p>Ship iteratively with tight quality and observability.</p>
-              </div>
-            </li>
-          </ul>
+          <div className="section-inner">
+            <h2>Approach</h2>
+            <ul className="steps">
+              <li>
+                <span className="step-index">01</span>
+                <div>
+                  <h4>Diagnostic</h4>
+                  <p>Define ROI targets, constraints, and success metrics.</p>
+                </div>
+              </li>
+              <li>
+                <span className="step-index">02</span>
+                <div>
+                  <h4>Design</h4>
+                  <p>Experience, systems, and data design for clarity and speed.</p>
+                </div>
+              </li>
+              <li>
+                <span className="step-index">03</span>
+                <div>
+                  <h4>Delivery</h4>
+                  <p>Ship iteratively with tight quality and observability.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
         </section>
 
         <section className="cta" id="contact">
@@ -214,6 +276,7 @@ function App() {
           <a href="#work">Work</a>
           <a href="#services">Services</a>
           <a href="#approach">Approach</a>
+          <Link to="/team">Our Team</Link>
           <a href="#contact">Contact</a>
         </div>
         <div className="footer-lang">
@@ -230,6 +293,40 @@ function App() {
         </div>
       </footer>
     </div>
+  );
+}
+
+function App() {
+  const [lang, setLang] = useState(() => localStorage.getItem('lang') || 'en');
+  const [formState, setFormState] = useState({ status: 'idle', message: '' });
+  const location = useLocation();
+
+  // close any open mobile menu on route change by scrolling to top
+  useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
+
+  return (
+    <Routes>
+      <Route path="/" element={<Home lang={lang} setLang={setLang} formState={formState} setFormState={setFormState} />} />
+      <Route path="/team" element={
+        <div className="site">
+          <header className="nav">
+            <div className="nav-left">
+              <div className="nav-brand">Trochlear</div>
+              <nav id="primary-navigation" className="nav-links">
+                <Link to="/">Home</Link>
+              </nav>
+            </div>
+          </header>
+          {require('./pages/Team').default()}
+          <footer className="footer">
+            <div>© {new Date().getFullYear()} Trochlear</div>
+            <div className="footer-links">
+              <Link to="/">Home</Link>
+            </div>
+          </footer>
+        </div>
+      } />
+    </Routes>
   );
 }
 

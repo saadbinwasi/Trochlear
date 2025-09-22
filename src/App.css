@@ -365,3 +365,335 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+
+
+
+/* ---------- Premium responsive additions (non-destructive) ---------- */
+
+/* Content container without changing existing layout */
+.section-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+/* Keep anchors visible beneath sticky nav */
+#work, #services, #approach, #contact, #home {
+  scroll-margin-top: 72px;
+}
+
+/* Lock body scroll when menu is open (mobile) */
+.site.lock {
+  overflow: hidden;
+}
+
+/* Nav: wrap brand + toggle on the left for mobile */
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Mobile hamburger (hidden on desktop) */
+.nav-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(233, 231, 225, 0.16);
+  background: rgba(233, 231, 225, 0.04);
+  outline: none;
+  cursor: pointer;
+  transition: transform 160ms ease;
+}
+.nav-toggle:hover { transform: translateY(-1px); }
+.nav-toggle .bar {
+  display: block;
+  width: 18px;
+  height: 2px;
+  margin: 4px auto;
+  background: #e9e7e1;
+  opacity: 0.9;
+  border-radius: 2px;
+}
+
+/* Desktop niceties */
+.nav {
+  backdrop-filter: blur(10px);
+}
+
+/* Subtle premium lift on cards & studies */
+.card, .study, .steps li {
+  box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+}
+
+/* Hero: slightly tighter on small screens (clamp already helps) */
+.hero {
+  padding: clamp(48px, 10vw, 80px) 20px 48px;
+}
+
+/* CTA row stacks on small screens */
+@media (max-width: 720px) {
+  .cta-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Footer stacks gracefully */
+@media (max-width: 840px) {
+  .footer {
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+  }
+  .footer-lang {
+    margin-left: 0;
+  }
+}
+
+/* ---- Mobile navigation behavior ---- */
+@media (max-width: 880px) {
+  .nav-toggle { display: inline-flex; align-items: center; justify-content: center; }
+  .nav-links {
+    position: fixed;
+    inset: 64px 14px auto 14px; /* below sticky header */
+    background: rgba(18,18,18,0.94);
+    border: 1px solid rgba(233,231,225,0.12);
+    border-radius: 14px;
+    display: grid;
+    gap: 8px;
+    padding: 14px;
+    transform: translateY(-12px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease, transform 180ms ease;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.3);
+  }
+  .nav-links.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .nav-links a {
+    margin: 0;
+    padding: 12px 10px;
+    border-radius: 10px;
+    background: rgba(233,231,225,0.03);
+    border: 1px solid rgba(233,231,225,0.08);
+  }
+  .nav .btn-outline {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Hide desktop inline nav layout when mobile */
+  .nav { position: sticky; }
+}
+
+/* Studies & cards tighter grid on small screens */
+@media (max-width: 560px) {
+  .cards {
+    grid-template-columns: 1fr; /* already auto-fit, but force single for comfort */
+  }
+  .studies {
+    grid-template-columns: 1fr;
+  }
+  .steps {
+    gap: 10px;
+  }
+}
+
+/* Inputs comfortable tap sizes on mobile */
+@media (max-width: 640px) {
+  .contact-form .grid {
+    grid-template-columns: 1fr; /* you already had this; keep for specificity */
+  }
+  .contact-form input,
+  .contact-form textarea {
+    font-size: 16px; /* prevent iOS zoom on focus */
+  }
+}
+
+/* Marquee: pause on hover and reduce speed on mobile for polish */
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+@media (max-width: 560px) {
+  .marquee-track { animation-duration: 36s; }
+}
+
+/* Buttons: subtle premium shimmer on primary */
+.btn-primary {
+  background-size: 200% 100%;
+  animation: sheen 4s linear infinite;
+}
+@keyframes sheen {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+  .btn-primary { animation: none; }
+  .nav-links, .btn-primary:hover { transition: none; }
+}
+
+
+
+/* --- Mobile hamburger: right side + always visible, no markup changes --- */
+@media (max-width: 880px) {
+  /* Keep header above the sheet */
+  .nav { position: sticky; z-index: 100; min-height: 56px; }
+
+  /* If you have .nav-left (from my earlier snippet), anchor to it... */
+  .nav-left { position: relative; width: 100%; }
+
+  /* ...but also support setups WITHOUT .nav-left */
+  .nav > .nav-toggle { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); }
+  .nav-left .nav-toggle { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); }
+
+  .nav-toggle {
+    display: inline-flex !important;     /* ensure visible on mobile */
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;              /* stack bars vertically */
+    gap: 6px;                            /* consistent spacing between bars */
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid rgba(233, 231, 225, 0.18);
+    background: rgba(17, 17, 17, 0.6);
+    backdrop-filter: blur(6px);
+    color: #e9e7e1;                      /* bar color via currentColor */
+    z-index: 120;                        /* ABOVE the menu sheet */
+  }
+
+  .nav-toggle .bar {
+    width: 20px;
+    height: 2px;
+    margin: 0;                           /* remove margins; rely on gap */
+    border-radius: 2px;
+    background: currentColor;
+    opacity: 0.95;
+  }
+
+  /* Ensure the dropdown sheet sits below the header/toggle */
+  .nav-links {
+    position: fixed;
+    inset: 64px 14px auto 14px;          /* below header */
+    z-index: 110;                        /* below toggle (120) */
+  }
+}
+
+/* Transform hamburger into an X when open */
+.nav-toggle.open .bar:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+.nav-toggle.open .bar:nth-child(2) {
+  opacity: 0;
+}
+.nav-toggle.open .bar:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+.nav-toggle .bar {
+  transition: transform 200ms ease, opacity 200ms ease;
+}
+
+/* Gentle scroll snapping for sections on mobile */
+@media (max-width: 880px) {
+  html, body {
+    scroll-behavior: smooth;
+  }
+  main {
+    scroll-snap-type: y proximity;
+  }
+  section {
+    scroll-snap-align: start;
+  }
+}
+
+/* Team page */
+.team-hero { padding-top: 32px; padding-bottom: 24px; }
+.team-subtitle { max-width: 800px; margin: 0 auto; }
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+/* Tighter spacing above the cards section */
+#team { padding-top: 24px; }
+
+.member-card {
+  background: rgba(233, 231, 225, 0.04);
+  border: 1px solid rgba(233, 231, 225, 0.12);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+}
+
+.member-head { display: grid; grid-template-columns: 56px 1fr; gap: 12px; align-items: center; }
+.avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: radial-gradient(120px 120px at 30% 30%, rgba(204,154,62,0.25), rgba(233,231,225,0.06));
+  border: 1px solid rgba(233,231,225,0.16);
+  display: grid; place-items: center;
+}
+.avatar span { font-weight: 700; letter-spacing: 0.06em; color: #e9e7e1; }
+
+.member-name { margin: 0 0 2px 0; }
+.member-role { color: rgba(233,231,225,0.75); font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+.member-summary { color: rgba(233,231,225,0.86); margin: 12px 0 12px; }
+
+.member-focus { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.pill {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(233,231,225,0.16);
+  background: rgba(233,231,225,0.05);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: rgba(233,231,225,0.85);
+}
+
+.member-actions { display: flex; gap: 10px; }
+
+@media (max-width: 640px) {
+  .team-hero { padding-top: 28px; padding-bottom: 20px; min-height: 320px; overflow: hidden; }
+  .team-subtitle { font-size: 14px; }
+  .member-head { grid-template-columns: 48px 1fr; }
+  .avatar { width: 48px; height: 48px; }
+  #team { padding-top: 16px; }
+}
+
+/* FX canvas background */
+.fx-wrap {
+  position: relative;
+}
+.fx-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none; /* do not block taps */
+}
+.fx-content { position: relative; z-index: 1; }
+
+/* Full-page FX (fixed across the entire route) */
+.fx-fixed { position: fixed; inset: 0; z-index: 0; }
+.fx-page { position: relative; z-index: 1; }
