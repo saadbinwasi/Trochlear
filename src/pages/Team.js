@@ -1,26 +1,28 @@
 import React from 'react';
 import CosmicBackground from '../components/CosmicBackground';
+import waniaPhoto from '../assets/team/wania-adnan.jpg';
 
 function Team() {
   const members = [
     {
-      name: 'Abdullah Memon',
-      initials: 'AM',
-      role: 'AI Developer',
+      name: 'Saad Bin Wasi',
+      initials: 'SW',
+      role: 'Co‑Founder',
       summary:
-        'Leads model integration and agentic capabilities. Designs evaluation loops to ensure reliability and ROI.',
-      focus: ['LLM apps', 'RAG', 'Tool use', 'Evaluation'],
+        'Owns end‑to‑end delivery across frontend, backend, and automations. Builds observable, secure systems.',
+      focus: ['Product engineering', 'Orchestration', 'Reliability', 'Automation'],
       links: [
         { label: 'LinkedIn', href: 'https://www.linkedin.com', type: 'primary' },
       ],
     },
     {
-      name: 'Saad Bin Wasi',
-      initials: 'SW',
-      role: 'Full‑stack & AI Engineer',
+      name: 'Wania Adnan',
+      initials: 'WA',
+      photo: waniaPhoto,
+      role: 'Founder',
       summary:
-        'Owns end‑to‑end delivery across frontend, backend, and automations. Builds observable, secure systems.',
-      focus: ['Product engineering', 'Orchestration', 'Reliability', 'Automation'],
+        'Sets the vision and direction for Trochlear. Leads strategy, partnerships, and client outcomes.',
+      focus: ['Vision', 'Strategy', 'Partnerships', 'Growth'],
       links: [
         { label: 'LinkedIn', href: 'https://www.linkedin.com', type: 'primary' },
       ],
@@ -49,7 +51,11 @@ function Team() {
                 <article className="member-card" key={m.name}>
                   <div className="member-head">
                     <div className="avatar" aria-hidden="true">
-                      <span>{m.initials}</span>
+                      {m.photo ? (
+                        <img src={m.photo} alt="" />
+                      ) : (
+                        <span>{m.initials}</span>
+                      )}
                     </div>
                     <div>
                       <h3 className="member-name">{m.name}</h3>
